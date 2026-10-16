@@ -1,0 +1,491 @@
+<title>The Doc List</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a single left-aligned ledger column. Each film is one tappable row; ratings sit at the right edge. */
+:root {
+  --bg: #EDF0F3;
+  --surface: #F8F9FB;
+  --fg: #12171E;
+  --muted: #5A6572;
+  --line: #CBD2DA;
+  --accent: #0E6B72;
+  --accent-fg: #FFFFFF;
+  --star: #B9770E;
+  --star-off: #C5CCD4;
+  --chip: #E1E6EB;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F141A; --surface: #161D25; --fg: #E6EBF0; --muted: #93A0AE; --line: #2A3440;
+    --accent: #5CC4C9; --accent-fg: #06161A; --star: #E9AE4A; --star-off: #3A4552; --chip: #1F2832;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F141A; --surface: #161D25; --fg: #E6EBF0; --muted: #93A0AE; --line: #2A3440;
+  --accent: #5CC4C9; --accent-fg: #06161A; --star: #E9AE4A; --star-off: #3A4552; --chip: #1F2832;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-block: 2rem 3rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 52rem; margin: 0 auto; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.kicker { font: 500 .75rem/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 .75rem; }
+h1 { font: 800 clamp(2.1rem, 7vw, 3.4rem)/1 var(--f-display); letter-spacing: -.02em; margin: 0 0 .75rem; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; max-width: 40rem; }
+
+.controls { display: grid; gap: .9rem; margin-block: 1.75rem 1rem; }
+.field { display: grid; gap: .3rem; min-width: 0; }
+.field > span { font: 500 .7rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+input[type="search"], select {
+  width: 100%; min-height: 44px; min-width: 0;
+  background: var(--surface); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: .55rem .7rem; font: inherit;
+}
+.selects { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: .75rem; }
+
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.chip {
+  font: 500 .8rem/1 var(--f-mono); min-height: 40px; padding: 0 .85rem;
+  background: var(--chip); color: var(--fg); border: 1px solid transparent; border-radius: 4px; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
+.count { font: 500 .85rem/1 var(--f-mono); color: var(--muted); margin: 0; }
+.reset { font: 500 .85rem var(--f-body); color: var(--accent); background: none; border: 0; padding: .5rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+.list { list-style: none; margin: .5rem 0 0; padding: 0; border-bottom: 1px solid var(--line); }
+.list li { border-top: 1px solid var(--line); }
+.row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .35rem 1rem; align-items: start;
+  width: 100%; padding: .95rem .5rem; text-align: left;
+  background: none; border: 0; color: inherit; font: inherit; cursor: pointer;
+}
+.row:hover { background: var(--surface); }
+.title { font: 700 1.15rem/1.25 var(--f-display); text-wrap: balance; }
+.by { font: 400 .8rem/1.4 var(--f-mono); color: var(--muted); margin-top: .2rem; }
+.tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .55rem; }
+.tag { font: 500 .7rem/1 var(--f-mono); letter-spacing: .04em; padding: .3rem .45rem; background: var(--chip); border-radius: 3px; color: var(--fg); }
+.tag.todo { background: transparent; box-shadow: inset 0 0 0 1px var(--accent); color: var(--accent); }
+.rates { display: grid; gap: .4rem; justify-items: end; }
+.rt { display: grid; grid-template-columns: auto auto; align-items: center; gap: 0 .5rem; justify-content: end; }
+.rt .lab { font: 500 .62rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); grid-column: 1 / -1; justify-self: end; }
+.rt .num { font: 500 1.05rem/1 var(--f-mono); font-variant-numeric: tabular-nums; min-width: 2ch; text-align: right; }
+.rt .num.none { color: var(--muted); }
+.stars { position: relative; display: inline-block; font-size: .85rem; line-height: 1; letter-spacing: 0; white-space: nowrap; color: var(--star-off); }
+.stars::before { content: "\2605\2605\2605\2605\2605"; }
+.stars > i { position: absolute; inset: 0 auto 0 0; width: var(--p, 0%); overflow: hidden; color: var(--star); font-style: normal; }
+.stars > i::before { content: "\2605\2605\2605\2605\2605"; }
+.empty { padding: 2rem .5rem; color: var(--muted); }
+.legend { font: 400 .8rem/1.4 var(--f-mono); color: var(--muted); margin: 1rem .5rem 0; }
+
+/* Detail sheet */
+.sheet { position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-end; justify-content: center; background: rgba(8, 12, 16, .55); }
+.panel {
+  width: 100%; max-width: 36rem; max-height: 88%; overflow: auto;
+  background: var(--surface); color: var(--fg);
+  border-radius: 12px 12px 0 0; border: 1px solid var(--line);
+  padding-top: 1.25rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (min-width: 640px) {
+  .sheet { align-items: center; padding: 1.5rem; }
+  .panel { border-radius: 12px; padding-inline: 1.75rem; padding-bottom: 1.75rem; }
+}
+.p-head { display: flex; justify-content: space-between; align-items: start; gap: 1rem; }
+.p-title { font: 800 1.7rem/1.1 var(--f-display); letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.close { flex: none; min-height: 40px; padding: 0 .8rem; background: var(--chip); color: var(--fg); border: 0; border-radius: 6px; font: 500 .85rem var(--f-body); cursor: pointer; }
+.p-rates { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-block: 1.1rem; }
+.p-rates .rt { justify-content: start; }
+.p-rates .rt .lab { justify-self: start; margin-bottom: .4rem; }
+.p-rates .rt .num { font-size: 1.5rem; }
+.p-rates .stars { font-size: 1.05rem; }
+.p-meta { margin: 1rem 0 0; display: grid; grid-template-columns: auto 1fr; gap: .35rem 1rem; }
+.p-meta dt { font: 500 .7rem/1.9 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.p-meta dd { margin: 0; }
+.p-desc { margin: 1.1rem 0 0; max-width: 60ch; }
+.p-desc.todo { color: var(--muted); }
+.p-review { margin: 1.25rem 0 0; padding-left: 1rem; border-left: 2px solid var(--accent); }
+.p-review figcaption { font: 500 .7rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+.p-review blockquote { margin: 0; max-width: 60ch; }
+.p-note { color: var(--muted); margin: 1.4rem 0 0; }
+.btn { display: inline-flex; align-items: center; min-height: 44px; margin-top: 1.4rem; padding: 0 1.1rem; background: var(--accent); color: var(--accent-fg); border-radius: 6px; font-weight: 600; text-decoration: none; }
+.btn.alt { background: var(--chip); color: var(--fg); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .row { transition: background .12s ease; }
+  .chip { transition: background .12s ease; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="kicker">Film log &middot; Letterboxd</p>
+    <h1>The Doc List</h1>
+    <p class="sub">Films I've watched, with my rating next to the Letterboxd average, plus the ones still on my list. Tap a title for details and my review.</p>
+  </header>
+
+  <section class="controls" aria-label="Filters">
+    <label class="field"><span>Search</span><input id="q" type="search" placeholder="Title, subject, or where to watch" autocomplete="off"></label>
+    <div class="field"><span>Show</span><div class="chips" id="status" role="group" aria-label="Show"></div></div>
+    <div class="selects">
+      <label class="field"><span>Subject</span><select id="subj"></select></label>
+      <label class="field"><span>Sort</span>
+        <select id="sort">
+          <option value="list">My list order</option>
+          <option value="mine">My rating, high to low</option>
+          <option value="lb">Letterboxd rating, high to low</option>
+          <option value="yearDesc">Year, newest first</option>
+          <option value="yearAsc">Year, oldest first</option>
+          <option value="title">Title, A to Z</option>
+        </select>
+      </label>
+      <label class="field"><span>My rating</span>
+        <select id="myMin">
+          <option value="0">Any</option><option value="3">3.0 and up</option><option value="3.5">3.5 and up</option>
+          <option value="4">4.0 and up</option><option value="4.5">4.5 and up</option><option value="5">5.0 only</option>
+        </select>
+      </label>
+      <label class="field"><span>Letterboxd rating</span>
+        <select id="lbMin">
+          <option value="0">Any</option><option value="3.5">3.5 and up</option><option value="3.8">3.8 and up</option><option value="4">4.0 and up</option><option value="4.3">4.3 and up</option>
+        </select>
+      </label>
+      <label class="field"><span>Year from</span><select id="yFrom"></select></label>
+      <label class="field"><span>Year to</span><select id="yTo"></select></label>
+    </div>
+  </section>
+
+  <div class="bar">
+    <p class="count" id="count" aria-live="polite"></p>
+    <button class="reset" id="reset" type="button">Clear filters</button>
+  </div>
+
+  <ol class="list" id="list"></ol>
+  <p class="empty" id="empty" hidden>No films match those filters.</p>
+  <p class="legend">* Not free to watch.</p>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="p-title" id="panel"></div>
+</div>
+
+<script>
+/* ---- DATA: one film per line, in list order. Add rows here.
+   t title, y year, lb Letterboxd average (null if none), mine my rating (watched films only),
+   s subjects, w where to watch (* = not free), seen 1 if watched.
+   Optional per film: desc (description), review (link to my Letterboxd review), ex (excerpt of my review),
+   nolb 1 (film is not on Letterboxd). ---- */
+var FILMS = [
+  {t:"The Act of Killing", y:2012, lb:4.4, mine:5.0, s:["War"], w:"Roku", seen:1, review:"https://boxd.it/crGfrp", ex:"My movie project for 2026 is to watch a documentary a week. I started off with this movie and I think I can safely say I won't see another movie like it this year (or ever). It is literally unlike anything I've ever seen -- I sat there with my jaw dropped for the first 30 minutes of it. The…", desc:"Former Indonesian death-squad leaders who took part in the 1965 mass killings agree to re-enact their crimes on camera, staging them as scenes in gangster, western, and musical movies of their own design."},
+  {t:"Writing With Fire", y:2021, lb:3.7, mine:3.5, s:["Media", "Culture"], w:"Prime", seen:1, review:"https://boxd.it/cz2Eul", ex:"A standard documentary that highlights the heroic, courageous work done by the women of the news organization Khabar Laharia in Uttar Pradesh, India. It makes up for a lack of interesting form and style by providing us a look at the ridiculous and dangerous attitudes of men (in general) and Modhi's…", desc:"Follows the reporters of Khabar Lahariya, a news outlet run by Dalit women in India, over about five years as they move from print to smartphone-based digital journalism."},
+  {t:"The Barkley Marathons", y:2014, lb:4.0, mine:4.0, s:["Adventure"], w:"Tubi", seen:1, review:"https://boxd.it/cApqjj", ex:"A very interesting look at a ridiculous endurance race that includes some insightful thoughts on the nature of competition, goals, and finding your own limits. Also, the guy who runs it is an absolute boss. I have tons of respect for all the people who attempt this race -- except that one (white…", desc:"A look at the Barkley Marathons, a secretive and brutally difficult trail race in a small Tennessee town, and the runners who try it. Entry is by a hidden application process, the start time is unannounced, and the course changes every year."},
+  {t:"Queendom", y:2023, lb:4.0, mine:4.0, s:["Culture"], w:"Kanopy", seen:1, review:"https://boxd.it/cASDaR", ex:"The courage Gena has to flout convention in Russia (and not just Russia, but hell-and-gone former gulag Russia) is astounding. She exists in a place where literally at any moment she could be apprehended and disappeared simply for being who they are, and still they persist despite having no one on…", desc:"Follows Gena Marvin, a young queer artist from Magadan who stages costumed street performances in Moscow to challenge ideas of beauty and queerness and to protest the harassment of LGBTIQ+ people."},
+  {t:"Secret Mall Apartment", y:2024, lb:3.6, mine:4.0, s:["Culture"], w:"Prime*", seen:1, review:"https://boxd.it/cJcUKz", ex:"Less about the actual apartment per se -- although how they discovered the space, furnished it, and kept it secret was fascinating -- and more about what it represented: the fight against commercialism and gentrification and the importance of art for art's sake.", desc:"Eight young people from Rhode Island secretly built and lived in a hidden apartment inside the Providence Place mall from 2003 to 2007. The film begins as a prank story and grows into questions about art and activism."},
+  {t:"Love+War", y:2025, lb:3.8, mine:3.5, s:["Art", "War", "Culture"], w:"Disney", seen:1, review:"https://boxd.it/cIsgij", ex:"This was fine - an interesting story told competently. Lynsey Addario is a fucking boss.", desc:"A portrait of Pulitzer Prize-winning photojournalist Lynsey Addario and her career photographing conflict, including the personal cost of the work: two kidnappings and long stretches away from her husband and sons."},
+  {t:"We Beat the Dream Team", y:2025, lb:3.4, mine:3.5, s:["Sports"], w:"HBO", seen:1, review:"https://boxd.it/cJd8Ob", ex:"Fun", desc:"The story of the college all-star squad brought in to scrimmage the 1992 U.S. Olympic Dream Team, with players including Grant Hill, Chris Webber, and Penny Hardaway, and the upset win that shaped the team's run to gold."},
+  {t:"Breakdown: 1975", y:2025, lb:3.4, mine:3.0, s:["Film", "Culture"], w:"Netflix", seen:1, review:"https://boxd.it/cNPQoj", ex:"This was fine, broke no new ground but wow that was a hell of a year at the movies.", desc:"Morgan Neville's essay film on 1975, a year of social and political turmoil, seen through the movies and culture it produced."},
+  {t:"Yacht Rock: A DOCKumentary", y:2024, lb:3.7, mine:3.5, s:["Music"], w:"HBO", seen:1, review:"https://boxd.it/cUKy49", ex:"Competent and held my attention, which sounds like a backhanded compliment but isn't. Everyone involved seems to be at exactly the right level of seriousness for an MTV documentary about a genre of music from 40+ years ago that wasn't even a genre at the time. My biggest takeaway was how…", desc:"An HBO Music Box documentary on the late-1970s and early-1980s West Coast soft rock known as yacht rock, with artists including Christopher Cross, Michael McDonald, Kenny Loggins, Steely Dan, and Toto, and how a style once mocked earned a respected place in music history."},
+  {t:"The Alabama Solution", y:2025, lb:4.2, mine:4.5, s:["AfAm"], w:"HBO", seen:1, review:"https://boxd.it/dqHI2f", ex:"Heroic and heartbreaking, maddening and amazing", desc:"Filmmakers Andrew Jarecki and Charlotte Kaufman investigate Alabama's prison system. A 2019 visit to film a revival meeting turned into a six-year inquiry after incarcerated men privately warned them about hidden abuses."},
+  {t:"Chop & Steele", y:2022, lb:3.7, mine:4.0, s:["Media"], w:"Tubi", seen:1, review:"https://boxd.it/djO1bJ", ex:"I knew about the Found Footage Festival, though I've never seen it, but had no idea about the guys behind it. This doc presents a typical backstory -- goofs and pranksters as kids who found a way to turn their interests into their career (such as it is) -- but also digs into the real-life problems…", desc:"Follows Joe Pickett and Nick Prueher, the pranksters behind the Found Footage Festival, a live show built from obscure and bizarre VHS tapes. On a nationwide tour, the film shows how their pranks and legal pressure strain a long friendship."},
+  {t:"Immediate Family", y:2022, lb:3.5, mine:3.0, s:["Music"], w:"Disney", seen:1, review:"https://boxd.it/dot1qn", ex:"This is the story of four incredibly talented musicians who played on some of the best music of the last 50 years, and they still get together and play and talk about stuff. It's all vibes and amazing skill and Phil Collins. WIYL Adult Album Alternative, non-toxic male friendship, guys named Rusty…", desc:"Denny Tedesco's film about a group of session musicians, among them bassist Leland Sklar, drummer Russ Kunkel, and guitarists Waddy Wachtel, Steve Postel, and Danny Kortchmar, and their work during the 1970s singer-songwriter boom, told through interviews with them and well-known artists."},
+  {t:"The Pigeon Tunnel", y:2023, lb:3.4, mine:2.5, s:["Art"], w:"Apple", seen:1, review:"https://boxd.it/dqL8Ev", ex:"(Not sure if I'm going to count this one or not because it was a DNF.) The best Errol Morris movies, IMO, are the ones where he can just sort of turn on his camera and let his subject be weird, or compelling, or evil. The residents of Vernon, Florida. Hawking. McNamara. Rumsfeld. Bannon. Huh, maybe…", desc:"Errol Morris interviews spy novelist John le Carré (David Cornwell) in what was meant to be his last and most personal interview. It covers six decades of his life and how his con-man father shaped his writing, with archival footage."},
+  {t:"Mr. Nobody Against Putin", y:2025, lb:3.9, mine:4.0, s:["Politics"], w:"Kino, Prime*", seen:1, review:"https://boxd.it/dwj2XT", ex:"Much like Queendom, this is the story of one person's resistance to Vladimir Putin leading up to and immediately after Russia's invasion of Ukraine. In that case it was a queer drag performer in the ass-end of Russia; in this case it's an event coordinator at a primary school in a different ass-end…", desc:"A Russian teacher secretly films his small-town school as it turns into a military recruitment hub during Russia's invasion of Ukraine, and the moral bind he faces as propaganda and militarism grow around him."},
+  {t:"Come See Me in the Good Light", y:2025, lb:3.9, mine:4.0, s:["Culture"], w:"Apple", seen:1, review:"https://boxd.it/dxN1qX", ex:"When someone you love dies, it's normal to see them in everything around you. Even with that, though, watching a movie about someone doing aggressive chemo to fight their metastatic cancer a week after your father died from the aggressive chemo he was doing to fight his metastatic cancer is a bit…", desc:"Ryan White's film follows poets Andrea Gibson and Megan Falley as they look back on their lives, their art, and their romance while Gibson lives with a serious illness, and shows how limited time changes a relationship."},
+  {t:"Listers: A Glimpse Into Extreme Birdwatching", y:2025, lb:null, mine:4.0, s:["Culture"], w:"YouTube", seen:1, nolb:1, desc:"Brothers Owen and Quentin Reiser try to spot as many bird species as possible across the contiguous United States in 2024, an extreme form of birdwatching called a big year, traveling by minivan and facing harsh conditions."},
+  {t:"Waste Land", y:2010, lb:3.7, mine:3.5, s:["Art"], w:"Prime*, Plex", seen:1, review:"https://boxd.it/dWSLt9", ex:"Uplifting but also raises a lot of moral questions, many of which the artist seemed uninterested in addressing. His heart was absolutely in the right place and he definitely felt a kinship with the pickers but it seemed like he still couldn't help but be patronizing. Still, he raised many thousands…", desc:"Artist Vik Muniz returns to his native Brazil to work at Jardim Gramacho, a huge garbage dump near Rio, and photographs the workers who collect recyclables there. The film shows both their dignity and their hardships as they imagine new futures."},
+  {t:"Meru", y:2015, lb:3.8, mine:3.0, s:["Adventure"], w:"Fubo", seen:1, review:"https://boxd.it/e1W5KF", ex:"These people are fucking insane.", desc:"Climbers Jimmy Chin, Conrad Anker, and Renan Ozturk make a second attempt on Mount Meru, a steep, difficult peak in India, after a near-fatal failed try in 2008. Short on supplies and facing brutal weather, they have to rely on one another to survive."},
+  {t:"Minding the Gap", y:2018, lb:4.3, mine:4.0, s:["Culture"], w:"Disney", seen:1, review:"https://boxd.it/e7f3Tj", ex:"Hurt people hurt people, but sometimes they manage not to. A look at three kids growing up in various bad situations and the ways they cope (or don't).", desc:"Filmmaker Bing Liu recorded three young men, bound by skateboarding and a wish to escape turbulent homes, over roughly twelve years. The film looks at difficult childhoods, poverty, modern masculinity, and how abuse can pass between generations."},
+  {t:"The Contestant", y:2023, lb:3.7, mine:3.5, s:["Media"], w:"Disney", seen:1, review:"https://boxd.it/ecPOD5", ex:"The producer would have made a really good Nazi prison guard.", desc:"Clair Titley's film about Tomoaki Hamatsu, the Japanese comedian known as Nasubi, who starred in the late-1990s reality show A Life in Prizes. He lived in isolation, unclothed, relying on whatever he could win through mail-in coupons, and the film draws on interviews about his family, childhood, and later life."},
+  {t:"Enter the Clones of Bruce", y:2023, lb:3.7, mine:4.0, s:["Film"], w:"Prime", seen:1, review:"https://boxd.it/edzvkv", ex:"This was so much more heartfelt and insightful than I expected it to be. It combines interviews with some of the best-known \"clones\" (Bruce Li, Bruce Le, Bruce Leung, Dragon Lee), actors (Roy Horan, Ron van Clief, Mars), directors like Godfrey Ho, and Golden Harvest producer André Morgan…", desc:"David Gregory's documentary on the low-budget films that exploited Bruce Lee's fame after his death. It uses archival footage and focuses on the look-alike performers who kept his on-screen image alive."},
+  {t:"Fire of Love", y:2022, lb:4.1, mine:3.5, s:["Adventure"], w:"Disney", seen:1, review:"https://boxd.it/enVdlJ", ex:"There is a scene in this movie where the husband (but NOT the wife) and another guy take an inflatable boat out onto a lake of acid and once the acid eats through the steel cable on their equipment they decide to bail but it takes them THREE HOURS to get back to shore and then he quotes Nietzsche…", desc:"Sara Dosa's documentary about Katia and Maurice Krafft, a French volcanologist couple who spent two decades traveling the world to study and film eruptions. It is built largely from their own footage and follows their story through their deaths in a 1991 volcanic explosion."},
+  {t:"The Imposter", y:2012, lb:3.8, mine:3.5, s:["Culture"], w:"Prime", seen:1, review:"https://boxd.it/etvACZ", ex:"First 30: So is this guy just a monster? Middle 30: Hmm, maybe something is weird about this family ... Last 30: Nope, definitely a monster.", desc:"Bart Layton's documentary about Frédéric Bourdin, who posed as Nicholas Barclay, a Texas boy who disappeared at 13. It mixes reenactments, interviews, and real documents to examine how the Barclay family accepted a returning son who looked and sounded strikingly different."},
+  {t:"What the Hell Happened to Blood, Sweat & Tears?", y:2023, lb:3.4, mine:3.0, s:["Music"], w:"Prime", seen:1, review:"https://boxd.it/eu1kij", ex:"They got fucked by the US government, that's what.", desc:"John Scheinfeld's film about Blood, Sweat & Tears and their 1970 State Department-sponsored tour of Eastern Bloc countries. It argues the tour damaged the band's reputation with American fans, who saw them as government puppets, and that the band was pressured into going so singer David Clayton-Thomas could get a green card."},
+  {t:"Grand Theft Hamlet", y:2024, lb:3.5, mine:4.5, s:["Culture"], w:"Mubi", seen:1, review:"https://boxd.it/euvZ8T", ex:"When I watched Bojack Horseman I remember thinking how crazy it was that the best representation of depression I'd ever seen was in a cartoon about a talking horse. I can now add to that how crazy it is that the best exploration of the need for human interaction and art I've ever seen is in…", desc:"Stranded during the COVID-19 lockdown, actors Sam Crane and Mark Oosterveen stage Shakespeare's Hamlet inside Grand Theft Auto and film it. The production plays out in the game's virtual Los Santos, setting Hamlet's dilemma amid violence and vulnerability."},
+  {t:"Mountain Queen: The Summits of Lhakpa Sherpa", y:2023, lb:3.9, mine:4.0, s:["Adventure"], w:"Netflix", seen:1, review:"https://boxd.it/euVXg9", ex:"Alex Honnold could never. Any of it.", desc:"Follows Lhakpa Sherpa, a Nepali-born mountaineer who works as a dishwasher in Connecticut while preparing for a tenth Everest summit that would set a record for female climbers. It also portrays her life as an immigrant, a single mother of two teenage daughters, and a survivor of spousal abuse."},
+  {t:"Fastball", y:2016, lb:3.6, mine:4.0, s:["Baseball"], w:"Prime", seen:1, review:"https://boxd.it/evlfYD", ex:"A bunch of Hall of Famers sitting around talking about which pitchers threw the fastest? I could watch eight hours of this shit.", desc:"Narrated by Kevin Costner, a look at the science and psychology of pitching and hitting, centered on the fraction of a second a fast pitch takes to reach the plate, with current and former players and scientists."},
+  {t:"Pavements", y:2024, lb:3.7, mine:4.0, s:["Music"], w:"Mubi, Prime*", seen:1, review:"https://boxd.it/eA8RJZ", ex:"The thing GenX is best at is the ability to be both ironic and sincere at the same time.", desc:"Alex Ross Perry's experimental film about the indie band Pavement, mixing documentary footage, scripted comedy, a stage musical built from their songs, and a museum exhibit about the group. It follows Perry's struggle to pull the project together as the frontman hesitates and the lead actor starts sounding and acting like him off set."},
+  {t:"The Bleeding Edge", y:2018, lb:3.7, mine:3.5, s:["Culture"], w:"Netflix", seen:1, review:"https://boxd.it/eRWe6x", ex:"A straightforward look at how the greed of medical device companies combined with a complete lack of oversight by the FDA has led to thousands of people (mostly women -- go figure) dying, becoming disabled, and/or experiencing severe chronic pain. The best thing this movie does is get out of the…", desc:"Kirby Dick and Amy Ziering's documentary on the American medical device industry and how weak oversight, corporate concealment, and profit motives can put patients at risk. It follows people whose lives were permanently damaged by devices meant to help them."},
+  {t:"Attica", y:2021, lb:3.8, mine:4.5, s:["Culture"], w:"Fubo", seen:1, review:"https://boxd.it/eXWPpl", ex:"I was aware of only the barest outline of what happened at Attica -- there was a riot, and some prisoners died -- but watching this movie felt like watching a horror movie that you already know the plot of. I knew what was going to happen; the question was how. The answer? Nothing that happened at…", desc:"Stanley Nelson's documentary on the rising hostility between incarcerated people and guards at Attica Correctional Facility in 1971, building to the September 9 uprising, one of the largest prison riots in American history."},
+  {t:"Pangolin: Kulu's Journey", y:2025, lb:3.7, mine:3.0, s:["Nature"], w:"Netflix", seen:1, review:"https://boxd.it/f4Nkrl", ex:"I wanted to be cynical about this guy and his parasocial relationship with this pangolin, but the truth is he's just a guy who was casting around for something to hold onto in his life and happened on pangolins. The fact that this movie was as much, if not more, about him than about the pangolin…", desc:"Pippa Ehrlich's film follows South African volunteer Gareth Thomas as he rescues Kulu, a baby pangolin, an endangered and heavily trafficked animal, and spends six months rehabilitating it so it can return to the wild."},
+  {t:"Last Comiskey", y:2023, lb:4.0, mine:2.5, s:["Baseball"], w:"YouTube", seen:1, review:"https://boxd.it/fqxxLp", ex:"Enthusiastic but amateurish.", desc:"Matt Flesch's documentary looks back on the 1990 Chicago White Sox season, the team's last at Comiskey Park, through archival footage and interviews with players, coaches, stadium staff, and fans. A team expected to finish last unexpectedly chases the Oakland Athletics."},
+  {t:"The Gleaners and I", y:2000, lb:4.3, mine:4.5, s:["Culture"], w:"Criterion", seen:1, review:"https://boxd.it/fzBjA7", ex:"Charming and insightful. Varda examines gleaning (or salvaging, which is different, as her berobed lawyers standing in the fields and on street corners will tell you) from multiple angles. For some it is a survival tool, for others a revolt against capitalism, for still others an inspiration for…", desc:"Agnès Varda's documentary about people who gather leftover produce from fields after the harvest and others who salvage usable food at Paris markets, whether from need or to cut waste, treating them as people who find value in what society throws away."},
+  {t:"Black Ice", y:2022, lb:3.5, mine:4.0, s:["AfAm", "Sports"], w:"Prime*", seen:1, review:"https://boxd.it/fZ8WNF", ex:"The stories these players tell just kick you right in the heart. Growing up and being continually told, through word and deed, that you don't belong, is something I can't imagine, and I'm so glad they took the time to talk about how it affected them. The courage that they have (that they shouldn't…", desc:"Hubert Davis's documentary on the history of anti-Black racism in hockey, from segregated leagues in the 19th century to today's NHL, where Black players still face bigotry. P.K. Subban, Akim Aliu, and Sarah Nurse are among the players in the cast."},
+  {t:"Copa 71", y:2023, lb:3.8, mine:3.0, s:["Sports"], w:"Prime*", seen:1, review:"https://boxd.it/gn1fTR", ex:"Really good but I wanted it to be great. Strangely I think it would have benefitted from some non-player talking heads who could have given more context.", desc:"About the unofficial 1971 Women's World Cup, a tournament that drew large crowds but has been left out of sporting history, told through the accounts of the women who played in it."},
+  {t:"The Last Guest of the Holloway Motel", y:2025, lb:3.8, mine:3.5, s:["Culture"], w:"Prime*", seen:1, review:"https://boxd.it/gis6UZ", ex:"As a guy sliding inexorably toward oldness I'm glad to see examples of people continuing to change and grow no matter their age. Tony Powell has had a hell of a life and seemed (at least outwardly) to be fine with the good and bad of it. Doing this documentary seemed to force him to deal with…", desc:"Follows Tony Powell, a former British footballer who now manages a struggling motel in Hollywood, and through his reflections explores a lonely life and the road he never chose."},
+  {t:"180° South", y:2010, lb:3.7, mine:3.0, s:["Adventure"], w:"Tubi", seen:1, review:"https://boxd.it/gpzI79", ex:"OK. Lots of thoughts about this one. A (white) guy born with the spirit of wanderlust decides to re-enact a trip to Patagonia that a previous generation of (white) guys born with the spirit of wanderlust undertook in the '60s. Along the way he has his eyes opened to the plight of indigenous peoples…", desc:"Chris Malloy's documentary follows climber and surfer Jeff Johnson as he sails down South America's Pacific coast toward Patagonia, retracing a 1968 journey by Yvon Chouinard and Doug Tompkins. Conservation is a central theme, and the film ends with his unfinished attempt to climb the Corcovado volcano."},
+  {t:"The History of Concrete", y:2026, lb:4.0, mine:4.0, s:["Culture"], w:"", seen:1, review:"https://boxd.it/gvvd6F", ex:"You let your camera lead you to odd and interesting places, you're not afraid to make yourself look silly for a laugh, and you never pass up an opportunity for a butt joke. (Also, a bunch of the negative reviews I read here accuse Wilson of making fun of the people he talks to, but I didn't see…", desc:"John Wilson sets out to make a documentary about concrete, the world's most widely used building material, after taking a workshop on writing Hallmark movies, and applies that formula to the film. The project's struggles reflect the tension between artistic freedom and the demands of the film industry."},
+  {t:"Recorder: The Marion Stokes Project", y:2019, lb:3.5, mine:3.0, s:["Media", "Culture"], w:"Prime*", seen:1, review:"https://boxd.it/gvzBJJ", ex:"I felt a little bit bait-and-switched with this one. I went in expecting an in-depth look at Stokes' tape collection, with insight into why she did it and what it meant and means. The movie gives some of that, but it's much more focused on Stokes herself. Fortunately, she is fascinating and…", desc:"Matt Wolf's documentary about Marion Stokes, a secretive activist who taped television broadcasts nonstop from 1979 to 2012 and built a collection of roughly 70,000 VHS tapes, and what her recordings preserve about the news and events of those decades."},
+  {t:"Imagining the Indian: The Fight Against Native American Mascoting", y:2021, lb:4.0, mine:3.5, s:["Native", "Sports"], w:"Prime*", seen:1, review:"https://boxd.it/gI5l9n", ex:"Well-made and straightforward documentary about the use of Indian words and imagery by sports teams. I didn't really learn anything new in that area, but Suzan Shown Harjo is a main focus of the movie and I knew nothing about her, so getting to learn about what she's done throughout her life as an…", desc:"Aviva Kempner and Ben West's documentary on the movement to remove Native American team names, mascots, images, and gestures that many Native people and their allies consider offensive. It uses archival footage and interviews, and covers teams such as Kansas City's football team and Atlanta's baseball team that have resisted changing their names."},
+  {t:"NAZA", y:2026, lb:4.3, s:["War"], w:"", desc:"Yuval Abraham and Rachel Szor's film, produced by The Guardian, which its festival listing describes as an examination of the systems behind Israel's planned mass killing of Palestinian civilians in Gaza. It was shot at night on rooftops in Tel Aviv."},
+  {t:"BLKNWS: Terms & Conditions", y:2018, lb:4.5, s:["AfAm", "Art"], w:"Apple*, Prime*", desc:"Kahlil Joseph's hybrid film blending documentary, visual essay, and speculative fiction. It builds on W.E.B. Du Bois's unfinished Encyclopedia Africana project and recasts the news broadcast as an alternative archive, treating history as an ongoing force in contemporary Black life."},
+  {t:"Everybody to Kenmure Street", y:2026, lb:4.1, s:["Politics"], w:"", desc:"Recounts a 2021 standoff on a Glasgow street, where neighbors and activists gathered to block an immigration van detaining two local residents, alongside the earlier stories and history that shaped the community."},
+  {t:"Television Event", y:2020, lb:3.5, s:["Media", "Culture"], w:"", desc:"An archive-based documentary about the making of The Day After (1983), the made-for-TV movie about nuclear war. It looks at the commercial network that produced it, its audience of over 100 million viewers, and how the broadcast pushed the U.S. president to address nuclear weapons."},
+  {t:"Videoheaven", y:2025, lb:3.5, s:["Film", "Culture"], w:"Criterion", desc:"Alex Ross Perry's documentary, narrated by Maya Hawke, charts the history of video rental stores from the late 1970s to their near-disappearance in the 2010s. Built from hundreds of film and TV clips, it follows no single person and draws on Daniel Herbert's book and Perry's own time working in a New York shop."},
+  {t:"No Other Land", y:2024, lb:4.6, s:["War"], w:"Prime*", desc:"A 2024 documentary by Basel Adra, Hamdan Ballal, Yuval Abraham, and Rachel Szor on the displacement of residents in Masafer Yatta in the West Bank. It follows Palestinian activist Basel and Israeli journalist Yuval as their friendship grows while they film the demolition of villagers' homes, which are rebuilt and destroyed again after a 22-year court case."},
+  {t:"American Doctor", y:2026, lb:4.4, s:["War"], w:"N/A", desc:"Poh Si Teng's documentary about three American physicians, one Palestinian, one Jewish, and one Zoroastrian, who volunteer in besieged Gaza hospitals, then return to the U.S. and campaign, including in Congress, for the patients and colleagues they left behind."},
+  {t:"Soundtrack to a Coup d'Etat", y:2024, lb:4.1, s:["Music", "Politics"], w:"Prime*", desc:"An Oscar-nominated documentary on the 1960 Congolese coup and the assassination of Patrice Lumumba. It uses archival footage and jazz to show how American cultural and political involvement shaped events, including the Cold War strategy of sending musicians like Thelonious Monk and Max Roach abroad, set against Congolese resistance."},
+  {t:"Kedi", y:2016, lb:4.1, s:["Culture"], w:"Prime*", desc:"Ceyda Torun's documentary about the stray cats of Istanbul, the people who look after them, and how the city is changing."},
+  {t:"The Kingdom of Dreams and Madness", y:2013, lb:4.1, s:["Film"], w:"HBO", desc:"A 2013 documentary on the creative process at Studio Ghibli, centered on Hayao Miyazaki as he prepares The Wind Rises, then planned as his last feature. It also follows his mentor and rival Isao Takahata as he slowly finishes The Tale of the Princess Kaguya, with producer Toshio Suzuki managing both releases."},
+  {t:"Waltz With Bashir", y:2008, lb:4.0, s:["War"], w:"Prime*", desc:"A hand-drawn animated documentary in a vivid comic-book style. Director Ari Folman has lost his memories of serving as a young soldier in Lebanon in the 1980s, and seeks out former comrades and specialists to recover them, confronting the 1982 Sabra and Shatila massacres."},
+  {t:"The Sound of the Police", y:2023, lb:4.0, s:["AfAm", "Crime"], w:"Disney", desc:"Stanley Nelson and Valerie Scoon's Hulu documentary on the tense and often hostile relationship between African Americans and the police, from the origins of Southern police forces during slavery, through mob violence after the Great Migration, to recent high-profile cases and current efforts to address the conflict."},
+  {t:"63 Up", y:2019, lb:4.0, s:["Culture"], w:"Apple*", desc:"Michael Apted's ninth film in the Up series, checking in on a group of British-born adults after a seven-year gap as they reflect on how their lives have changed."},
+  {t:"The Python Hunt", y:2025, lb:3.8, s:["Culture"], w:"Prime*", desc:"Follows Florida's yearly public contest in which amateur hunters compete to remove invasive pythons from the Everglades. Over ten nights, a colorful group of participants take on hazardous wetland terrain, nocturnal wildlife, and their own motives for a $10,000 top prize."},
+  {t:"Crows Are White", y:2022, lb:3.7, s:["Culture"], w:"", desc:"Filmmaker Ahsen Nadeem, a Muslim going through a crisis of faith, visits an isolated Buddhist monastery in Japan looking for answers. He befriends a monk who says he would rather eat ice cream and listen to heavy metal than meditate, and their conversations explore faith and worldly desire."},
+  {t:"Free Chol Su Lee", y:2022, lb:3.7, s:["Culture"], w:"Mubi", desc:"The story of Chol Soo Lee, a man falsely convicted of a murder in San Francisco, and the 1970s grassroots campaign in which activists and the Asian American community rallied to win his freedom, told through archival footage and interviews."},
+  {t:"Ueck", y:2026, lb:3.7, s:["Baseball"], w:"", desc:"A documentary about Bob Uecker, the longtime Milwaukee Brewers broadcaster, covering his career in baseball, in the broadcast booth, and on screen. Directed by Michael Vollmann and Steve Farr, it focuses on his final seasons calling Brewers games, which they followed for roughly two years."},
+  {t:"ICE Under Watch", y:2026, lb:null, s:["Politics"], w:"Doc10", desc:"A 40-minute showcase of short documentaries by Chicago-based filmmakers on federal immigration enforcement, including ICE, and its impact on communities, centered on Operation Midway Blitz in Chicago. The works include personal testimonies, a documentary about a DHS visit to a Chicago job fair, and bodycam footage of a violent confrontation in Albany Park."},
+  {t:"The Walrus and the Whistleblower", y:2020, lb:3.4, s:["Nature"], w:"Tubi", desc:"Follows Phil Demers, a former animal trainer at MarineLand in Niagara Falls who became a whistleblower alleging animal abuse and campaigned to end marine mammal captivity. It also covers his bond with a walrus named Smooshi and the lawsuit and custody battle that followed."},
+  {t:"Justice", y:2023, lb:3.4, s:["Politics"], w:"", desc:"Doug Liman's first feature-length documentary examines the 2018 sexual assault allegations against Supreme Court Justice Brett Kavanaugh. It draws on leaked text messages, interviews with high school and Yale classmates and with journalists who covered the case, and a new interview with accuser Debbie Ramirez, with Christine Blasey Ford appearing in the opening scene."},
+  {t:"Baseball: Beyond Belief", y:2026, lb:3.3, s:["Sports"], w:"N/A", desc:"John Scheinfeld's documentary, based on a book by John Sexton, treats baseball as a source of spiritual meaning rather than only a sport. Drawing on the ideas of religious historian Mircea Eliade, it argues that the ballpark and its rituals can connect fans to something transcendent, with interviews with former players, a manager, and religion scholars."},
+  {t:"The Librarians", y:2025, lb:3.9, s:["Culture"], w:"PBS", desc:"Kim A. Snyder's documentary about librarians who band together to push back against book bans and protect intellectual freedom. It focuses on educators confronting censorship in states like Texas and Florida, including Suzette Baker and Becky Calzada."},
+  {t:"Summer of '94", y:2026, lb:3.8, s:["Sports"], w:"Tubi", desc:"A documentary about the 1994 U.S. Men's National Soccer Team as it prepared for the World Cup with no professional league, little star power, and scarce funding. It mixes new interviews with the team's own 1990s camcorder footage."},
+  {t:"The Secret of Me", y:2026, lb:3.8, s:["Culture"], w:"", desc:"Grace Hughes-Hallett's documentary follows 19-year-old Kristi, who learns from her medical records that the doctor and parents she trusted had hidden a central truth about her body. Her search leads to a discredited 1970s psychology experiment that justified unnecessary childhood surgeries, and the film uses archival material, testimony, and expert commentary to examine the harm done to intersex people."},
+  {t:"The People's Joker", y:2022, lb:3.8, s:["Film", "Culture"], w:"Mubi, Prime*", desc:"Vera Drew's 2022 superhero parody that unofficially spoofs Batman characters. It follows a transgender woman inspired by the Joker who grows up dreaming of stand-up comedy, forms an anti-comedy troupe in Gotham City, and comes into her own identity."},
+  {t:"Jimmy in Saigon", y:2022, lb:3.8, s:["Biog", "Culture"], w:"Tubi, Prime*", desc:"Peter McDowell investigates the death of his eldest brother Jim, a Vietnam veteran who died in 1972 in Saigon, where he was living as a civilian. He pieces it together from hundreds of Jim's letters, interviews with family and friends, and his search across the United States, Vietnam, and France, touching on grief and family secrets."},
+  {t:"Row of Life", y:2025, lb:3.7, s:["Culture"], w:"Prime*", desc:"Soraya Simi's documentary follows Angela Madsen, a former Marine, three-time Paralympian, and ocean rower, through the year before her solo, unsupported row from Los Angeles to Hawaii. It mixes her love story with her wife, Debra, and her athletic determination, until the film team and Debra lose contact with her at sea."},
+  {t:"The King of North Sudan", y:2021, lb:3.7, s:["Politics"], w:"Roku, Prime*", desc:"Danny Abel's documentary follows Jeremiah Heaton, an American who in 2014 claimed 500,000 acres of desert between Egypt and Sudan, first to make his daughter a princess and later to build an actual nation. It traces the media attention, a Disney movie deal, and his push for government and political connections."},
+  {t:"Rich Hill: Growing Up Poor", y:2014, lb:3.7, s:["Culture"], w:"N/A", desc:"Tracy Droz Tragos and Andrew Droz Palermo's 2014 documentary follows three teenage boys coming of age in a struggling small town in Missouri. Through their families' struggles with poverty, addiction, and incarceration, it also captures the rhythms and beauty of rural community life."},
+  {t:"Predators", y:2025, lb:3.6, s:["Media"], w:"Prime*", desc:"David Osit's film revisits To Catch a Predator, the hidden-camera series that aired on Dateline from 2004 to 2007 and staged stings on men who believed they were meeting minors. It questions the ethics of true crime entertainment and the public appetite for punishment and shaming."},
+  {t:"We Want the Funk!", y:2025, lb:3.6, s:["Music"], w:"PBS", desc:"A PBS Independent Lens documentary directed by Stanley Nelson that traces the history and influence of funk, the danceable blend of R&B, gospel, jazz, and blues rooted in Black culture. It follows the genre from the Motown era through James Brown and George Clinton's Parliament-Funkadelic, using musician interviews."},
+  {t:"Kill. Bury. Print.", y:2026, lb:3.6, s:["Media"], w:"Peacock", desc:"A Peacock true crime documentary produced by Rachel Maddow about a standoff between the sheriff's department in Idabel, Oklahoma, and the Willingham family, who run the local newspaper, the McCurtain Gazette. It follows the family's fight for press freedom after they reported alleged misconduct in the sheriff's office, including claims that officers discussed having them killed."},
+  {t:"Riefenstahl", y:2024, lb:3.6, s:["Film", "Culture"], w:"Prime*", desc:"Andres Veiel's 2024 documentary takes a critical look at filmmaker Leni Riefenstahl, from her celebrated Nazi-era films to her final years. Drawing on her personal archive of home movies, letters, and private conversations, it tests whether she was an apolitical artist or knowingly used her talent in service of fascist ideology."},
+  {t:"Underland", y:2025, lb:3.5, s:["Culture"], w:"N/A", desc:"A 2025 documentary directed by Rob Petit that follows explorers into hard-to-reach places such as caves, flooded drains, and underground laboratories. Narrated by Sandra Hüller, it reveals the hidden worlds beneath our feet and invites reflection on humanity's modest place on Earth."},
+  {t:"La Commune (Paris, 1871)", y:2000, lb:4.3, s:["History"], w:"", desc:"A reenactment-style film shot inside a theater in Montreuil about the Paris Commune of March 1871. It alternates a soothing Versailles TV report with a community access channel run by the insurgents, and about 220 mostly amateur actors play Popincourt workers debating issues that speak as much to today's unemployment and racism as to 1871, arguing for ethical commitment and participatory democracy."},
+  {t:"It's Never Over, Jeff Buckley", y:2025, lb:4.3, s:["Music"], w:"Fandango", desc:"Amy Berg's documentary portrait of the singer best known for his cover of \"Hallelujah\" and his 1994 debut album Grace. It follows his bandmates and the women who knew him best, using archival footage, voicemails, and notebook excerpts to present him as a vibrant, talented artist rather than only a tragic figure."},
+  {t:"Been Here Stay Here", y:2024, lb:4.0, s:["Politics"], w:"N/A", desc:"A documentary about Tangier Island, a historic fishing community in Virginia's Chesapeake Bay, as erosion and environmental change threaten its future. It quietly observes residents' daily work, worship, and family life and how they are adapting, rather than focusing on policy debates or expert commentary."},
+  {t:"Phenomena", y:2026, lb:4.0, s:["Science"], w:"N/A", desc:"A 2026 Australian experimental documentary by debut filmmaker Josef Gatti, who uses scientific experiments to reveal hidden natural forces, such as soap bubbles that resemble distant planets and ferrofluids that seem to move with life. Inspired by his physics-teacher father, Gatti performs the experiments himself and captures everything in camera without visual effects."},
+  {t:"The Pink Pill: Sex, Drugs and Who Has Control", y:2026, lb:4.0, s:["Culture"], w:"Para+", desc:"Follows advocates campaigning for FDA approval of a drug shown to increase women's sexual desire. The film argues that medicine and medical education overlook women's sexual health, even as many drugs are developed for men's erectile dysfunction."},
+  {t:"Honeyland", y:2019, lb:4.0, s:["Culture"], w:"Prime*", desc:"Follows Hatidze, a woman in the mountains of Macedonia who cares for her ailing mother while earning a living harvesting honey with age-old beekeeping methods. Her solitude is disrupted when a boisterous family moves in next door and also takes up beekeeping, turning a welcome presence into a source of friction."},
+  {t:"The Square", y:2013, lb:3.9, s:["Politics"], w:"Prime*, Tubi", desc:"Jehane Noujaim's documentary follows a group of Egyptian activists who risk their lives confronting regimes and military forces during the country's revolution, from the 2011 overthrow of a 30-year dictatorship onward, and through the 2013 removal of a second president in three years. It offers an immersive, on-the-ground view of the upheaval."},
+  {t:"Undefeated", y:2011, lb:3.9, s:["Sports"], w:"Peacock, Tubi", desc:"Daniel Lindsay and T.J. Martin's 2011 documentary about a high school football team in an under-resourced part of Memphis, Tennessee. It follows three young players and their volunteer coach, Bill Courtney, as they face hardships off the field alongside the season's games."},
+  {t:"No End in Sight", y:2007, lb:3.9, s:["War", "Politics"], w:"HBO", desc:"Charles Ferguson's 2007 American documentary examines how the Bush administration handled the Iraq War and the occupation that followed."},
+  {t:"The Hunting Ground", y:2015, lb:3.8, s:["Culture"], w:"Prime*, Tubi", desc:"Kirby Dick's 2015 documentary examines sexual assault at American colleges and how schools may have concealed it, focusing on the harm to students and their families. It comes from the team behind The Invisible War."},
+  {t:"While We Watched", y:2022, lb:3.8, s:["Media", "Politics"], w:"PBS*", desc:"Follows Indian journalist Ravish Kumar over two years as he works in a newsroom under pressure from fake news, shrinking ratings, and budget cuts. It asks whether audiences still want fact-based reporting or whether his show will be overtaken by sensationalism and ratings-driven decisions."},
+  {t:"They'll Love Me When I'm Dead", y:2018, lb:3.7, s:["Film"], w:"Netflix", desc:"Morgan Neville's documentary examines Orson Welles's last years and his fixation on finishing The Other Side of the Wind, a film he never completed despite years of work. It combines previously unseen footage of Welles on set with new interviews with the film's cast and crew."},
+  {t:"The Grab", y:2022, lb:3.7, s:["Culture"], w:"Doc10", desc:"Gabriela Cowperthwaite's 2022 documentary examines how governments and private investors compete for control of the world's food and water supplies. It follows investigative reporters from the Center for Investigative Reporting as they connect local disputes, such as water shortages in Arizona and displaced communities in Zambia, to larger geopolitical deals, including China's purchase of Smithfield Foods."},
+  {t:"Sugarcane", y:2024, lb:3.7, s:["Native"], w:"Disney", desc:"Follows members of the Sugarcane Reserve in Canada as they investigate child disappearances and abuse at a nearby Catholic-run residential school. Their search prompts a broader community reckoning, with survivors sharing painful memories while police and suspects are shown to be unhelpful."},
+  {t:"Steal This Story, Please!", y:2025, lb:3.7, s:["Media"], w:"Doc10", desc:"A profile of journalist Amy Goodman, from her upbringing in a rabbi's family to decades of reporting from conflict zones and the Democracy Now! newsroom. It explores the value and risks of independent journalism amid corporate consolidation and political pressure, and how her team's grassroots broadcast offers alternative viewpoints."},
+  {t:"Antidote", y:2024, lb:3.6, s:["Politics"], w:"PBS", desc:"A 2024 documentary directed by James Jones about the personal cost of opposing Vladimir Putin and exposing the truth about modern Russia. It follows three people: an insider from Russia's poisoning program trying to escape, an activist who survived two poisonings and now faces treason charges, and a man exposing the program who has been forced into hiding."},
+  {t:"Disco's Revenge", y:2024, lb:3.6, s:["Music"], w:"N/A", desc:"Omar Majeed and Peter Mishara's documentary traces disco's deep roots, its harsh backlash, and its lasting influence on later music. It is told largely through the recollections of Chic founder Nile Rodgers and New York DJ Nicky Siano, with archival footage of underground clubs showing the era's culture from the inside."},
+  {t:"Seized", y:2026, lb:3.6, s:["Politics"], w:"N/A", desc:"Follows the small town of Marion, Kansas, after police raided the local newspaper, the Marion County Record, and its 98-year-old co-owner died, drawing national and international attention. The film explores the resulting debate over government overreach, press ethics, the future of small-town news, and constitutional rights."},
+  {t:"Where Are You, Jay Bennett?", y:2021, lb:3.5, s:["Music"], w:"Prime, Tubi", desc:"A 2021 documentary directed by Gorman Bechard and Fred Uhter about the life of musician Jay Bennett, best known for his work with the band Wilco. It is Bechard's sixth rock documentary, and reviewers have credited it with a close, detailed look at Bennett's talent and his contributions to Wilco's music."},
+  {t:"20 Days in Mariupol", y:2023, lb:4.3, s:["War"], w:"Hoopla, Prime*", desc:"A team of Ukrainian journalists working for The Associated Press is trapped in the besieged city of Mariupol, recording Russian atrocities as the only international reporters still there. Drawing on director Mstyslav Chernov's own news reports and personal footage, the film shows civilians suffering under the siege and what it takes to report from a war zone."},
+  {t:"2000 Meters to Andriivka", y:2025, lb:4.3, s:["War"], w:"Prime*", desc:"Mstyslav Chernov's documentary follows Ukrainian troops as they push through a mined forest toward Andriivka, a village occupied by Russian forces, to try to retake it. It focuses on soldiers such as Fedya, who leads the advance, balancing their personal stories and everyday camaraderie with the combat and deaths they face."},
+  {t:"Flee", y:2021, lb:4.2, s:["War", "Culture", "Memoir"], w:"Fandango", desc:"An animated documentary by Jonas Poher Rasmussen about Amin Nawabi, a 36-year-old scholar who has concealed his childhood escape from Afghanistan as a refugee for two decades. It blends a story of coming out and self-discovery with a look at the refugee experience, as his buried past threatens the life he is building with his future husband."},
+  {t:"Cutting Through Rocks", y:2025, lb:4.0, s:["Politics", "Culture"], w:"N/A", desc:"Follows Sara Shahverdi, a 37-year-old former midwife who has just become the first elected councilwoman in her remote northwest Iranian village. She works to end patriarchal customs by teaching teenage girls to ride motorcycles and stopping child marriages, and the film shows her determined efforts when her motives are questioned."},
+  {t:"Troubadors", y:2011, lb:3.8, s:["Music"], w:"Prime*", desc:"Morgan Neville's 2011 documentary about the early-1970s singer-songwriter scene centered on Doug Weston's Troubadour club in West Hollywood. Using archival footage, rare performances, and interviews with artists such as James Taylor, Carole King, and Joni Mitchell, it traces the scene's rise and eventual decline."},
+  {t:"Respect Yourself: The Stax Records Story", y:2017, lb:3.8, s:["Music"], w:"N/A", desc:"Traces the founding of Stax Records and its role in developing soul music and the Memphis sound. It features classic performances and interviews with founder Jim Stewart and Stax artists, and shows how the label, racially integrated during segregation, grew into one of the nation's most successful Black-owned companies."},
+  {t:"Diamond King", y:2025, lb:3.8, s:["Sports", "Art"], w:"Prime", desc:"Traces how baseball has changed over time, from early ballparks to the present, through the paintings of Dick Perez, the Baseball Hall of Fame's longtime official artist. It also connects the sport's evolution to Perez's own story as an immigrant."},
+  {t:"Beats, Rhymes and Life", y:2011, lb:3.8, s:["Music"], w:"Prime*", desc:"A career-spanning documentary directed by actor Michael Rapaport about the hip-hop group A Tribe Called Quest, tracing their start in Queens and their role in the Native Tongues collective. It centers on the strained relationship between members Q-Tip and Phife Dawg, including fraught footage from their 2008 reunion."},
+  {t:"Bad Press", y:2023, lb:3.7, s:["Native", "Media"], w:"Criterion", desc:"A 2023 documentary by Joe Peeler and Rebecca Landsberry-Baker about the Muscogee Nation's press freedom fight. After the tribe repealed its Free Press Act in 2018 and returned its news outlet to the chief and cabinet, veteran reporter Angel Ellis pushes for a constitutional referendum to restore those protections."},
+  {t:"Seeds", y:2025, lb:3.7, s:["AfAm"], w:"N/A", desc:"Brittany Shyne's American documentary profiles farms in the American South that have been operated for a century. Shot in slow, black-and-white images, it explores the shrinking number of multigenerational Black farmers and why owning land matters to them."},
+  {t:"Stolen Kingdom", y:2025, lb:3.7, s:["Culture"], w:"???", desc:"Traces a history of pranks, scandals, and thefts at Walt Disney World, building toward the theft of a nearly half-million-dollar animatronic. Through interviews with members of the park's underground community, it shows how early mischief seemed to inspire later crimes, and turns into a true-crime mystery about who took the figure known as Buzzy."},
+  {t:"Big Star: Nothing Can Hurt Me", y:2012, lb:3.6, s:["Music"], w:"HBO", desc:"Drew DeNicola's documentary follows the history of the band Big Star. It explores how the group earned strong critical praise and a devoted cult following despite struggling to achieve commercial success."},
+  {t:"If a Tree Falls: A Story of the Earth Liberation Front", y:2012, lb:3.6, s:["Politics", "Culture"], w:"Prime*, Tubi", desc:"Profiles Daniel McGowan, a former member of the Earth Liberation Front who faced life in prison for two arsons against Oregon timber companies. It traces his path from a working-class kid in Queens to eco-activist and weighs environmentalism against terrorism."},
+  {t:"Shangri-La", y:2019, lb:3.6, s:["Music"], w:"Fubo", desc:"A four-part documentary miniseries from 2019, directed by Morgan Neville and Jeff Malmberg, that aired on Showtime. It focuses on the Shangri-La recording studio in Malibu, California, and its owner, producer and Def Jam co-founder Rick Rubin."},
+  {t:"BS High", y:2023, lb:3.6, s:["Sports"], w:"HBO", desc:"An HBO documentary about Bishop Sycamore High School, a fake football program whose nationally televised 2021 game against IMG Academy ended 58-0 and set off a media firestorm. It centers on founder Roy Johnson and the damage his deception caused to young players and their families."},
+  {t:"Finding the Money", y:2023, lb:3.5, s:["Politics"], w:"Tubi, Prime*", desc:"A 2023 American documentary directed by Maren Poitras. It centers on a small group of economists working to change how people think about government debt and what money actually is."},
+  {t:"Holding Liat", y:2025, lb:3.5, s:["War"], w:"N/A", desc:"In late 2023, filmmaker Brandon Kramer, a relative, followed the family of Liat Atzili as they worked to free her and her husband after they were taken hostage by Hamas. The documentary shows the family's disagreements over politics and strategy, from her father's criticism of Israel's leadership to others' anger at Hamas and at anti-war protesters."},
+  {t:"Reggie", y:2023, lb:3.5, s:["Baseball"], w:"Prime", desc:"Alex Stapleton's 2023 documentary traces the life and career of Reggie Jackson, the Hall of Fame baseball player and five-time World Series champion. It also examines his legacy as a pioneering Black athlete, with Jackson talking to other sports stars including Derek Jeter, Bill Russell, and Hank Aaron about race and sports."},
+  {t:"Strong Island", y:2017, lb:3.5, s:["AfAm"], w:"Netflix", desc:"Director Yance Ford revisits the violent death of his brother more than two decades earlier. The film examines how silence, race, and fear, combined with the justice system, left his brother's killer free."},
+  {t:"Infinite Football", y:2018, lb:3.4, s:["Sports"], w:"Mubi", desc:"Corneliu Porumboiu's documentary follows Laurențiu Ginghină, a provincial civil servant who talks at length with the filmmaker about his ideas for reforming soccer's rules and structure. The conversation drifts from the sport to unrelated subjects such as property disputes, political ideals, and the marks life leaves on people."},
+  {t:"The Ringmaster", y:2019, lb:3.3, s:["Food"], w:"Tubi", desc:"Follows an older Minnesota cook whose life is thrown into chaos by a determined filmmaker from Las Vegas, who is set on turning the cook's onion rings into an internationally renowned specialty."},
+  {t:"Zodiac Killer Project", y:2025, lb:3.2, s:["Culture"], w:"Prime*", desc:"Charlie Shackleton's documentary is about the film he set out to make on the Zodiac Killer before being denied the rights to a former detective's book on the case. Rather than focusing on the killings, it dissects the conventions of true crime storytelling, drawing on well-known examples of the genre."},
+  {t:"War Game", y:2024, lb:3.1, s:["Politics"], w:"Prime*", desc:"Follows American defense, intelligence, and elected officials from five presidential administrations, across both parties, as they take part in an improvised simulation of a military-backed coup after a disputed election. The exercise has no script, so the participants must respond to the crisis as it unfolds."},
+  {t:"The Smell of Money", y:2022, lb:4.2, s:["Business"], w:"Prime*", desc:"Follows residents of eastern North Carolina, including Elsie Herring, who challenge the large industrial pig farms near their homes and see the stench as a sign of long-standing unfair treatment. Filmed between 2018 and 2022, it shows the community confronting one of the world's most influential meat producers to defend its rights."},
+  {t:"Beyond Utopia", y:2023, lb:4.0, s:["Politics"], w:"Prime*", desc:"Madeleine Gavin's 2023 documentary follows a pastor who uses a covert network to help North Korean families escape and pursue freedom, despite serious risk."},
+  {t:"Jodorowsky's Dune", y:2013, lb:4.0, s:["Film"], w:"Tubi, Prime*", desc:"A 2013 documentary tracing cult filmmaker Alejandro Jodorowsky's effort to turn a landmark science fiction novel into a movie, an ambitious undertaking that never reached the screen."},
+  {t:"Into the Abyss", y:2011, lb:3.9, s:["Crime"], w:"Pluto", desc:"Werner Herzog's 2011 documentary uses intimate interviews with people connected to a Texas death row inmate, along with Herzog's conversations with condemned prisoners about life, death, and their crimes."},
+  {t:"The Invisible War", y:2012, lb:3.8, s:["Culture"], w:"Prime", desc:"An investigative documentary about the underreported problem of sexual assault in the US military and the institutions that allow it to continue. It explores the lasting personal and social harm to service members, focusing on people whose faith in their military service was shattered."},
+  {t:"Finding Vivian Maier", y:2013, lb:3.8, s:["Art"], w:"Mubi", desc:"Co-directed by John Maloof and Charlie Siskel, the film follows Maloof's search for the identity of a little-known street photographer whose negatives he bought at an auction. It portrays Maier as a secretive, unconventional woman who worked as a nanny and kept her photography hidden, with her striking images reaching the public only after her death."},
+  {t:"On the Record", y:2020, lb:3.8, s:["Crime"], w:"HBO", desc:"Follows Drew Dixon, a former music executive who worked with artists such as Whitney Houston and Method Man, as she weighs whether to publicly accuse hip-hop mogul Russell Simmons of sexual assault. Simmons has denied such allegations. The film presents her as one of the first women of color to speak out about him during the #MeToo era."},
+  {t:"Sabbath Queen", y:2024, lb:3.7, s:["Culture"], w:"Doc10", desc:"A feature documentary shot over 21 years that follows Rabbi Amichai Lau-Lavie, a member of a 38-generation line of Orthodox rabbis, as he struggles with that inherited role and reinvents himself as a drag performer, a queer father, and founder of Lab/Shul, an experimental pop-up congregation. It also examines his efforts to reshape religion and ritual, challenge patriarchy, promote interfaith love, and advocate for peace in Israel and Palestine."},
+  {t:"My Architect: A Son's Journey", y:2003, lb:3.7, s:["Biog"], w:"Criterion", desc:"Nathaniel Kahn's 2003 documentary in which he sets out to understand his father, the famous architect Louis Kahn, whom he barely knew. The film visits his father's buildings and speaks with his colleagues, offering a portrait of both the man and his work."},
+  {t:"The Pistachio Wars", y:2024, lb:3.6, s:["Business"], w:"Prime*", desc:"Yasha Levine and Rowan Wernham's documentary examines how Stewart and Lynda Resnick, owners of The Wonderful Company, allegedly gained influence over California's water system during a drought, and how large-scale farming affects the environment. It also suggests that the Resnicks' business interests benefit from continued hostility toward Iran."},
+  {t:"Queen of Chess", y:2026, lb:3.6, s:["Sports"], w:"Netflix", desc:"A 2026 Netflix documentary directed by Rory Kennedy about chess great Judit Polgar. It follows her childhood as part of a father-led experiment to raise strong chess players, her rise to becoming the youngest grandmaster, and her famous games against Garry Kasparov."},
+  {t:"The Picture Taker", y:2022, lb:3.5, s:["AfAm", "Politics"], w:"PBS N/A", desc:"Profiles Ernest Withers, a photographer known for his civil rights-era pictures who also worked as an FBI informant. The film explores both the man behind those well-known photographs and the reasons that may have shaped his choices."},
+  {t:"Fanny: The Right to Rock", y:2021, lb:3.5, s:["Music"], w:"PBS, Prime*", desc:"The story of Fanny, a rock band that began as a teenage garage group in 1960s Sacramento and became a pioneering all-women act whose influence was long overlooked. It follows the bandmates as they reunite decades later for a new record deal, mixing archival concert footage with interviews from well-known musicians and discussing the discrimination they faced over race, gender, sexuality, and age."},
+  {t:"Outrage", y:2009, lb:3.5, s:["Politics"], w:"Prime*, Tubi", desc:"Kirby Dick's 2009 documentary examines gay and bisexual politicians who hide their sexuality while backing laws that harm LGBT people. It argues that the news media has been reluctant to report on these lawmakers' private lives, unlike comparable stories about straight politicians, and draws on Michael Rogers's work at BlogActive.com."},
+  {t:"Confessions of a Good Samaritan", y:2023, lb:3.5, s:["Culture"], w:"Netflix", desc:"Filmmaker Penny Lane documents herself preparing to donate a kidney to an unknown recipient, questioning whether the act makes her a good person. Interviews with a bioethicist, a neuroscientist, and a transplant surgeon, along with archival footage of altruistic donors, frame it as a modest study of altruism."},
+  {t:"We Live Here: The Midwest", y:2023, lb:3.3, s:["Culture"], w:"Disney", desc:"Melinda Maerker's 2023 documentary follows LGBTQ+ families in Midwestern states who face hostility at church, at school, and in their neighborhoods. It also features Minnesota state representative Heather Keeler, a queer mother who is pushing LGBTQ+ rights into politics despite death threats."},
+  {t:"The Big Payback", y:2022, lb:3.3, s:["AfAm", "Politics"], w:"Prime*", desc:"An Independent Lens documentary about a first-year alderwoman in Evanston, Illinois, who helped pass the first tax-funded reparations measure in U.S. history for Black Americans. The film also examines the broader national debate over what the country owes for its past."},
+  {t:"Our New President", y:2018, lb:3.3, s:["Politics"], w:"N/A", desc:"A satirical documentary that compiles footage from Russian TV channels, including Russia-1, Russia Today, and NTV, showing how they covered Hillary Clinton and Donald Trump during the 2016 election and Trump's first year in office. It presents that coverage as a portrait of modern propaganda and its spread across the world."},
+  {t:"The Best of Enemies", y:2015, lb:3.8, s:["Media"], w:"Tubi", desc:"Directed by Morgan Neville and Robert Gordon, the film revisits a series of nationally televised debates from 1968 between two prominent public intellectuals: the liberal Gore Vidal and the conservative William F. Buckley Jr."},
+  {t:"Are We Good?", y:2025, lb:3.7, s:["Biog"], w:"Prime*", desc:"A 2025 documentary following comedian and podcaster Marc Maron after the sudden death of his partner, filmmaker Lynn Shelton. He candidly examines his mourning, his sense of letdown, and his personal change as he looks for a way forward and tries to turn the loss into material for his comedy."},
+  {t:"Art Dealers", y:2023, lb:3.7, s:["Music"], w:"Prime*", desc:"A 2023 documentary directed by Roy Power and Adam Weiner that follows rock musician Adam Weiner, performing as Low Cut Connie, and his band as they try to stage a concert version of their album for three nights in New York City. Drawing on five years of footage, it mixes intense live performances with the setbacks Weiner faces, which he meets with humor and theatrical flair."},
+  {t:"Love in the Time of Fentanyl", y:2022, lb:3.6, s:["Culture"], w:"Kanopy", desc:"A 2022 Canadian documentary directed by Colin Askey that follows a group of people who run a safe injection site in Vancouver's Downtown Eastside neighborhood. It won the Colin Low Award at the 2022 DOXA Documentary Film Festival."},
+  {t:"Ascension", y:2021, lb:3.6, s:["Culture"], w:"Prime*", desc:"A visually striking documentary that examines China's manufacturing and consumer economy, focusing on the widening gap between rich and poor. It climbs the social ladder from factory workers to middle-class shoppers to the wealthy, showing how each tier depends on the one below it."},
+  {t:"Little Richard: I Am Everything", y:2023, lb:3.6, s:["Music"], w:"HBO", desc:"Lisa Cortés's documentary, which premiered at Sundance in 2023, portrays the rock pioneer as a man torn between his devout faith and his sexuality and music. It combines archival footage with interviews with fellow musicians and scholars who argue he never received the recognition or money he deserved for helping shape rock 'n' roll."},
+  {t:"Cooked: Survival By ZIP Code", y:2018, lb:3.5, s:["Politics"], w:"Prime*", desc:"Looks back at a 1995 Chicago heat wave that killed 739 people in a single week, most of them poor, Black, and elderly. It links that disaster to later natural catastrophes and examines how income, race, and where someone lives shape their odds of surviving such crises, asking why these deaths aren't treated as disasters."},
+  {t:"Art For Everybody", y:2023, lb:3.5, s:["Art"], w:"N/A", desc:"Miranda Yousef's 2023 documentary looks at Thomas Kinkade, the popular artist whose cheerful, mass-produced paintings sold widely in the 1990s. After his death in 2012, his daughters discovered hundreds of private, darker works that revealed a more troubled man, including his struggles with alcohol."},
+  {t:"Lynch/Oz", y:2022, lb:3.4, s:["Film"], w:"Prime*", desc:"Alexandre O. Philippe's documentary traces how the imagery and cultural influence of The Wizard of Oz recur throughout David Lynch's work, from his early short The Alphabet to Twin Peaks: The Return. Through six perspectives narrated by contemporary voices, it asks whether Lynch's films deepen our understanding of his symbolism and of the 1939 classic's lasting appeal."},
+  {t:"The Other Fellow", y:2022, lb:3.4, s:["Film", "Culture"], w:"Tubi", desc:"A 2022 British documentary drama that follows real men named James Bond around the world, blending interviews, live footage, and re-enactments. It explores how the name and the global Bond franchise shape their identities, fandom, and everyday lives, from a Swedish 007 superfan to a New York theatre director and an ornithologist whose name Ian Fleming borrowed."},
+  {t:"Werner Herzog: Radical Dreamer", y:2022, lb:3.4, s:["Film", "Biog"], w:"Tubi", desc:"Thomas von Steinaecker's documentary examines the career, creative process, and life of filmmaker Werner Herzog, from his early successes to his more recent documentaries. It combines archival and previously unseen footage with interviews with people who have worked with him, including Chloé Zhao, Patti Smith, and Wim Wenders."}
+];
+/* ---- END DATA ---- */
+
+var $ = function (s) { return document.querySelector(s); };
+var DEFAULTS = { q: "", sort: "list", my: 0, lb: 0, from: 0, to: 9999, subj: "", status: "all" };
+var state = Object.assign({}, DEFAULTS);
+var lastFocus = null;
+var SEEN = FILMS.filter(function (f) { return f.seen; }).length;
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+function where(w) {
+  if (!w || w === "N/A" || w === "???") return "";
+  return w;
+}
+function rating(label, v) {
+  var has = typeof v === "number";
+  return '<span class="rt"><span class="lab">' + label + '</span><span class="num' + (has ? "" : " none") + '">' +
+    (has ? v.toFixed(1) : "&ndash;") + '</span><span class="stars" aria-hidden="true"><i style="--p:' +
+    (has ? (v / 5 * 100) : 0) + '%"></i></span></span>';
+}
+function ratingText(label, v) {
+  return label + ": " + (typeof v === "number" ? v.toFixed(1) + " out of 5" : "no rating");
+}
+
+function setup() {
+  var years = FILMS.map(function (f) { return f.y; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort();
+  var from = '<option value="0">Any</option>', to = '<option value="9999">Any</option>';
+  years.forEach(function (y) { from += '<option value="' + y + '">' + y + '</option>'; to += '<option value="' + y + '">' + y + '</option>'; });
+  $("#yFrom").innerHTML = from; $("#yTo").innerHTML = to;
+
+  var counts = {};
+  FILMS.forEach(function (f) { f.s.forEach(function (s) { counts[s] = (counts[s] || 0) + 1; }); });
+  var names = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b); });
+  var opts = '<option value="">All subjects</option>';
+  names.forEach(function (s) { opts += '<option value="' + esc(s) + '">' + esc(s) + ' (' + counts[s] + ')</option>'; });
+  $("#subj").innerHTML = opts;
+
+  var st = [["all", "All " + FILMS.length], ["seen", "Watched " + SEEN], ["todo", "Not yet watched " + (FILMS.length - SEEN)]];
+  $("#status").innerHTML = st.map(function (p) {
+    return '<button type="button" class="chip" data-s="' + p[0] + '" aria-pressed="' + (p[0] === "all") + '">' + p[1] + '</button>';
+  }).join("");
+
+  $("#q").addEventListener("input", function (e) { state.q = e.target.value.trim().toLowerCase(); render(); });
+  $("#sort").addEventListener("change", function (e) { state.sort = e.target.value; render(); });
+  $("#subj").addEventListener("change", function (e) { state.subj = e.target.value; render(); });
+  $("#myMin").addEventListener("change", function (e) { state.my = parseFloat(e.target.value); render(); });
+  $("#lbMin").addEventListener("change", function (e) { state.lb = parseFloat(e.target.value); render(); });
+  $("#yFrom").addEventListener("change", function (e) { state.from = parseInt(e.target.value, 10); render(); });
+  $("#yTo").addEventListener("change", function (e) { state.to = parseInt(e.target.value, 10); render(); });
+  $("#status").addEventListener("click", function (e) {
+    var b = e.target.closest(".chip"); if (!b) return;
+    state.status = b.getAttribute("data-s"); render();
+  });
+  $("#reset").addEventListener("click", function () {
+    state = Object.assign({}, DEFAULTS);
+    $("#q").value = ""; $("#sort").value = "list"; $("#subj").value = ""; $("#myMin").value = "0"; $("#lbMin").value = "0";
+    $("#yFrom").value = "0"; $("#yTo").value = "9999"; render();
+  });
+  $("#list").addEventListener("click", function (e) {
+    var b = e.target.closest(".row"); if (!b) return;
+    lastFocus = b; openSheet(parseInt(b.getAttribute("data-i"), 10));
+  });
+  $("#sheet").addEventListener("click", function (e) { if (e.target.id === "sheet") closeSheet(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("#sheet").hidden) closeSheet(); });
+}
+
+function visible() {
+  var out = [];
+  FILMS.forEach(function (f, i) {
+    if (state.status === "seen" && !f.seen) return;
+    if (state.status === "todo" && f.seen) return;
+    if (state.q) {
+      var hay = (f.t + " " + f.s.join(" ") + " " + f.w).toLowerCase();
+      if (hay.indexOf(state.q) < 0) return;
+    }
+    if (state.subj && f.s.indexOf(state.subj) < 0) return;
+    if (state.my && !(typeof f.mine === "number" && f.mine >= state.my)) return;
+    if (state.lb && !(typeof f.lb === "number" && f.lb >= state.lb)) return;
+    if (f.y < state.from || f.y > state.to) return;
+    out.push({ f: f, i: i });
+  });
+  var num = function (v) { return typeof v === "number" ? v : -1; };
+  var sorters = {
+    list: function (a, b) { return a.i - b.i; },
+    mine: function (a, b) { return num(b.f.mine) - num(a.f.mine) || a.i - b.i; },
+    lb: function (a, b) { return num(b.f.lb) - num(a.f.lb) || a.i - b.i; },
+    yearDesc: function (a, b) { return b.f.y - a.f.y || a.i - b.i; },
+    yearAsc: function (a, b) { return a.f.y - b.f.y || a.i - b.i; },
+    title: function (a, b) { return a.f.t.localeCompare(b.f.t); }
+  };
+  out.sort(sorters[state.sort]);
+  return out;
+}
+
+function render() {
+  Array.prototype.forEach.call(document.querySelectorAll("#status .chip"), function (c) {
+    c.setAttribute("aria-pressed", c.getAttribute("data-s") === state.status ? "true" : "false");
+  });
+  var rows = visible();
+  $("#count").textContent = rows.length + " of " + FILMS.length + " films";
+  $("#empty").hidden = rows.length > 0;
+  var html = "";
+  rows.forEach(function (r) {
+    var f = r.f, w = where(f.w);
+    var by = f.y + (w ? " · " + esc(w) : "");
+    var tags = (f.seen ? "" : '<span class="tag todo">Not yet watched</span>') +
+      f.s.map(function (s) { return '<span class="tag">' + esc(s) + '</span>'; }).join("");
+    var aria = f.t + ", " + f.y + ". " + (f.seen ? ratingText("My rating", f.mine) : "Not yet watched") + ". " + ratingText("Letterboxd", f.lb);
+    html += '<li><button type="button" class="row" data-i="' + r.i + '" aria-label="' + esc(aria) + '. Open details">' +
+      '<span><span class="title">' + esc(f.t) + '</span><div class="by">' + by + '</div><div class="tags">' + tags + '</div></span>' +
+      '<span class="rates">' + (f.seen ? rating("Mine", f.mine) : "") + rating("Letterboxd", f.lb) + '</span></button></li>';
+  });
+  $("#list").innerHTML = html;
+}
+
+function openSheet(i) {
+  var f = FILMS[i], w = where(f.w);
+  var link = f.nolb ? '<p class="p-note">Not on Letterboxd.</p>' : f.review
+    ? '<a class="btn" href="' + esc(f.review) + '" target="_blank" rel="noopener">Read my review on Letterboxd</a>'
+    : '<a class="btn alt" href="https://letterboxd.com/search/' + encodeURIComponent(f.t) + '/" target="_blank" rel="noopener">Search Letterboxd for this film</a>';
+  var desc = f.desc
+    ? '<p class="p-desc">' + esc(f.desc) + '</p>'
+    : '<p class="p-desc todo">Description coming soon.</p>';
+  var ex = f.ex ? '<figure class="p-review"><figcaption>My review</figcaption><blockquote>' + esc(f.ex) + '</blockquote></figure>' : "";
+  $("#panel").innerHTML =
+    '<div class="p-head"><h2 class="p-title" id="p-title">' + esc(f.t) + '</h2>' +
+    '<button type="button" class="close" id="close">Close</button></div>' +
+    '<div class="p-rates">' + (f.seen ? rating("Mine", f.mine) : "") + rating("Letterboxd", f.lb) + '</div>' +
+    '<dl class="p-meta"><dt>Year</dt><dd>' + f.y + '</dd>' +
+    '<dt>Status</dt><dd>' + (f.seen ? "Watched" : "Not yet watched") + '</dd>' +
+    (f.s.length ? '<dt>Subject</dt><dd>' + f.s.map(esc).join(", ") + '</dd>' : '') +
+    (w ? '<dt>Watch on</dt><dd>' + esc(w) + (w.indexOf("*") >= 0 ? ' <span style="color:var(--muted)">(* not free)</span>' : '') + '</dd>' : '') +
+    '</dl>' + desc + ex + link;
+  $("#sheet").hidden = false;
+  $("#close").addEventListener("click", closeSheet);
+  $("#close").focus();
+}
+function closeSheet() {
+  $("#sheet").hidden = true;
+  if (lastFocus) { try { lastFocus.focus(); } catch (e) {} }
+}
+
+setup();
+render();
+</script>
