@@ -1,13 +1,13 @@
 # The Doc List
 
-A single-page, searchable list of documentaries: the ones I've watched, with my rating next to the Letterboxd average, plus the ones still on my list. Tap or click a title for a description, my review excerpt, and a link to my review on Letterboxd.
+A single-page, searchable list of documentaries: the ones I've watched, with my rating next to the Letterboxd average, plus documentaries I haven't seen yet. The list has 259 films: 145 from my 2026 documentary project (marked **Doc project**) and 114 more from my Letterboxd "Documentaries" list. Tap or click a title for a description, my review excerpt, and a link to my review on Letterboxd.
 
 **Live site:** _add your GitHub Pages address here_ (for example `https://<username>.github.io/<repo>/`)
 
 ## What it does
 
 - **Search** by title, subject, or where to watch.
-- **Filter** by status (All / Watched / Not watched), subject, my rating, Letterboxd rating, and a range of years.
+- **Filter** by status (All / Watched / Not watched), by list (Everything / Doc project / Other documentaries), subject, my rating, Letterboxd rating, and a range of years.
 - **Sort** by my list order, my rating, Letterboxd rating, year (newest or oldest), or title.
 - **Detail view** for each film: year, status, subject, where to watch, a short description, an excerpt of my review (watched films), and a link out to Letterboxd.
 - Shows both **my rating** and the **Letterboxd community average**, as a number and as stars.
@@ -17,6 +17,7 @@ A single-page, searchable list of documentaries: the ones I've watched, with my 
 
 - An asterisk after a service, such as `Prime*`, means it is **not free to watch** there.
 - `AfAm` is short for African-American.
+- A **Doc project** badge marks films that were part of my documentary project list. Films without it came from my Letterboxd "Documentaries" list.
 - Films marked "Not watched" show only the Letterboxd average, since I haven't rated them.
 - A film that isn't on Letterboxd shows "Not on Letterboxd" instead of a link.
 - If a watched film has no review link yet, the detail view offers a Letterboxd search instead.
@@ -46,6 +47,7 @@ The film data is a JavaScript array named `FILMS` near the bottom of `index.html
 | `review` | Link to my Letterboxd review (optional) |
 | `ex` | Excerpt of my review (optional) |
 | `desc` | Short description (optional; the page shows "Description coming soon." without one) |
+| `doc` | `1` if the film is part of the Doc project list (optional) |
 | `nolb` | `1` if the film is not on Letterboxd (optional) |
 
 To add a film, copy a line, change the values, and keep the commas and quotes intact. Put a backslash before any double quote inside text (`\"`). After editing, open the page and check that the film appears and that the filters still work.
@@ -61,7 +63,9 @@ To host it for the first time: create a public repository, upload `index.html`, 
 
 - Titles, years, subjects, availability and my ratings come from my own spreadsheet (Doc26).
 - My ratings and review excerpts come from my Letterboxd export. Review links are Letterboxd's short `boxd.it` links.
-- Letterboxd averages were copied in by hand and will drift from the live numbers over time.
+- The 114 added films come from my Letterboxd "Documentaries" list export. Their ratings and review links come from the same export; many watched films there have no rating, so "Mine" shows a dash.
+- Letterboxd averages were copied in by hand and will drift over time. **The 114 added films have no average yet** (shown as a dash), except F for Fake.
+- Subject tags for the added films are my own judgment from their descriptions, and where to watch is blank for them.
 - Descriptions are short summaries written with AI assistance from publicly available film pages, festival and distributor listings, and reviews. They are not copied from Letterboxd. Some may contain mistakes, so please tell me if you spot one.
 
 ## Notes
