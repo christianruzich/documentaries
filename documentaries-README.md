@@ -15,7 +15,7 @@ A single-page, searchable list of documentaries: the ones I've watched, with my 
 
 ## Reading the list
 
-- An asterisk after a service, such as `Prime*`, means it is **not free to watch** there.
+- A `($)` after a service, such as `Prime ($)`, means it is **not free to watch** there.
 - `AfAm` is short for African-American.
 - A **Doc Proj** badge marks films that were part of my documentary project list. Films without it came from my Letterboxd "Documentaries" list.
 - Films marked "Not watched" show only the Letterboxd average, since I haven't rated them.
@@ -54,7 +54,7 @@ The same films are also in the `FILMS` array inside `index.html` (the fallback c
 | `lb` | Letterboxd average, or `null` if there isn't one |
 | `mine` | My rating. Watched films only; leave it out for unwatched |
 | `s` | Subjects, as a list of tags |
-| `w` | Where to watch. Add `*` if it isn't free. `""`, `N/A` and `???` are hidden |
+| `w` | Where to watch. Add ` ($)` if it isn't free. `""`, `N/A` and `???` are hidden |
 | `seen` | `1` if watched; leave it out if not |
 | `review` | Link to my Letterboxd review (optional) |
 | `ex` | Excerpt of my review (optional) |
@@ -76,9 +76,9 @@ To host it for the first time: create a public repository, upload `index.html`, 
 - Titles, years, subjects, availability and my ratings come from my own spreadsheet (Doc26).
 - My ratings and review excerpts come from my Letterboxd export. Review links are Letterboxd's short `boxd.it` links.
 - The 114 added films come from my Letterboxd "Documentaries" list export. Their ratings and review links come from the same export; many watched films there have no rating, so "Mine" shows a dash.
-- Letterboxd averages were copied in by hand and will drift over time. **The 114 added films have no average yet** (shown as a dash), except F for Fake.
+- Letterboxd averages were copied in by hand and will drift over time. The averages for the 114 added films were pulled from their Letterboxd pages on Oct 16, 2026. Four films (ICE Under Watch, Billy Bragg & Wilco: Man in the Sand, Fairy Creek, Blue Vinyl) show a dash because Letterboxd had no average for them yet.
 - Subject tags for the added films are my own judgment from their descriptions, and where to watch is blank for them.
-- Descriptions are short summaries written with AI assistance from publicly available film pages, festival and distributor listings, and reviews. They are not copied from Letterboxd. Some may contain mistakes, so please tell me if you spot one.
+- Descriptions are drawn and summarized from publicly-available sources including FilmAffinity, Wikipedia and other film databases and archives, written with AI assistance. They are not copied from Letterboxd. Some may contain mistakes, so please tell me if you spot one.
 
 ## Notes
 
