@@ -17,26 +17,30 @@ A single-page, searchable list of documentaries: the ones I've watched, with my 
 
 - An asterisk after a service, such as `Prime*`, means it is **not free to watch** there.
 - `AfAm` is short for African-American.
-- A **Doc project** badge marks films that were part of my documentary project list. Films without it came from my Letterboxd "Documentaries" list.
+- A **Doc Proj** badge marks films that were part of my documentary project list. Films without it came from my Letterboxd "Documentaries" list.
 - Films marked "Not watched" show only the Letterboxd average, since I haven't rated them.
 - A film that isn't on Letterboxd shows "Not on Letterboxd" instead of a link.
 - If a watched film has no review link yet, the detail view offers a Letterboxd search instead.
 
 ## How it's built
 
-Everything is in one file, `index.html`: markup, styles, script, and the film data. There is no build step and no framework, and no server. The only outside request is the Google Fonts stylesheet (Archivo, Public Sans, IBM Plex Mono). If that fails to load, the page falls back to system fonts.
+The page is `index.html`: markup, styles and script, with no build step and no framework. The film list lives in `data.json` in the same folder, which the page loads when it opens. `index.html` also carries a built-in copy of the list as a fallback, used only if `data.json` doesn't exist yet or can't be loaded. The only outside request is the Google Fonts stylesheet (Archivo, Public Sans, IBM Plex Mono). If that fails to load, the page falls back to system fonts.
 
-## Adding or editing films from the page
+## Editing from the page (owner only)
 
-- The **+** button adds a film. Tap any film, then **Edit** or **Delete** (Delete asks you to tap twice).
-- **Backup & restore** (bottom of the page) exports the list as JSON, imports one, or resets to the list published in `index.html`.
-- Edits are stored in the browser on that device only. They don't sync between devices and are erased if site data is cleared, so export a backup now and then.
-- Until you make your first edit in a browser, it shows whatever is published in `index.html`. After that, the browser's own copy wins, so later changes to `index.html` won't appear there until you use **Reset to published list**.
-- New films get a date added; **Date added, newest first** is in the sort menu.
+Anyone can view the list. Only the owner can change it.
+
+- Tap **Owner sign-in** at the bottom and paste a GitHub token that has **Contents: Read and write** on this repository. Create it under GitHub Settings, Developer settings, Personal access tokens, Fine-grained tokens, and limit it to this repo (and `booklist`, which shares the same sign-in).
+- Once signed in, a **+** button adds a film. Tap a film, then **Edit** or **Delete** (Delete asks you to tap twice).
+- Every save is a commit to `data.json`. The public page picks it up after GitHub Pages redeploys, usually within about a minute.
+- **Owner tools** exports a backup, imports one (replacing the list), reloads from GitHub, or signs out.
+- The token is stored in that browser only and is sent only to GitHub. Sign out on shared devices.
+- If the list was changed from another device, a save is refused and the page offers a reload. Then redo the edit.
+- The first save creates `data.json` if the repo doesn't have one yet.
 
 ## Adding or editing films in the file
 
-The film data is a JavaScript array named `FILMS` near the bottom of `index.html`. Each film is one line, in list order:
+The same films are also in the `FILMS` array inside `index.html` (the fallback copy) and, once saved from the page, in `data.json` as one JSON object per line. Each film looks like this in the fallback array:
 
 ```js
 {t:"Writing With Fire", y:2021, lb:3.7, mine:3.5, s:["Media", "Culture"], w:"Prime", seen:1,
