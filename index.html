@@ -389,7 +389,7 @@ function setup() {
   names.forEach(function (s) { opts += '<option value="' + esc(s) + '">' + esc(s) + ' (' + counts[s] + ')</option>'; });
   $("#subj").innerHTML = opts;
 
-  var st = [["all", "All " + FILMS.length], ["seen", "Watched " + SEEN], ["todo", "Not yet watched " + (FILMS.length - SEEN)]];
+  var st = [["all", "All " + FILMS.length], ["seen", "Watched " + SEEN], ["todo", "Not watched " + (FILMS.length - SEEN)]];
   $("#status").innerHTML = st.map(function (p) {
     return '<button type="button" class="chip" data-s="' + p[0] + '" aria-pressed="' + (p[0] === "all") + '">' + p[1] + '</button>';
   }).join("");
@@ -457,9 +457,9 @@ function render() {
   rows.forEach(function (r) {
     var f = r.f, w = where(f.w);
     var by = f.y + (w ? " · " + esc(w) : "");
-    var tags = (f.seen ? "" : '<span class="tag todo">Not yet watched</span>') +
+    var tags = (f.seen ? "" : '<span class="tag todo">Not watched</span>') +
       f.s.map(function (s) { return '<span class="tag">' + esc(s) + '</span>'; }).join("");
-    var aria = f.t + ", " + f.y + ". " + (f.seen ? ratingText("My rating", f.mine) : "Not yet watched") + ". " + ratingText("Letterboxd", f.lb);
+    var aria = f.t + ", " + f.y + ". " + (f.seen ? ratingText("My rating", f.mine) : "Not watched") + ". " + ratingText("Letterboxd", f.lb);
     html += '<li><button type="button" class="row" data-i="' + r.i + '" aria-label="' + esc(aria) + '. Open details">' +
       '<span><span class="title">' + esc(f.t) + '</span><div class="by">' + by + '</div><div class="tags">' + tags + '</div></span>' +
       '<span class="rates">' + (f.seen ? rating("Mine", f.mine) : "") + rating("Letterboxd", f.lb) + '</span></button></li>';
@@ -481,7 +481,7 @@ function openSheet(i) {
     '<button type="button" class="close" id="close">Close</button></div>' +
     '<div class="p-rates">' + (f.seen ? rating("Mine", f.mine) : "") + rating("Letterboxd", f.lb) + '</div>' +
     '<dl class="p-meta"><dt>Year</dt><dd>' + f.y + '</dd>' +
-    '<dt>Status</dt><dd>' + (f.seen ? "Watched" : "Not yet watched") + '</dd>' +
+    '<dt>Status</dt><dd>' + (f.seen ? "Watched" : "Not watched") + '</dd>' +
     (f.s.length ? '<dt>Subject</dt><dd>' + f.s.map(esc).join(", ") + '</dd>' : '') +
     (w ? '<dt>Watch on</dt><dd>' + esc(w) + (w.indexOf("*") >= 0 ? ' <span style="color:var(--muted)">(* not free)</span>' : '') + '</dd>' : '') +
     '</dl>' + desc + ex + link;

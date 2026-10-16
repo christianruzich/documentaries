@@ -7,7 +7,7 @@ A single-page, searchable list of documentaries: the ones I've watched, with my 
 ## What it does
 
 - **Search** by title, subject, or where to watch.
-- **Filter** by status (All / Watched / Not yet watched), subject, my rating, Letterboxd rating, and a range of years.
+- **Filter** by status (All / Watched / Not watched), subject, my rating, Letterboxd rating, and a range of years.
 - **Sort** by my list order, my rating, Letterboxd rating, year (newest or oldest), or title.
 - **Detail view** for each film: year, status, subject, where to watch, a short description, an excerpt of my review (watched films), and a link out to Letterboxd.
 - Shows both **my rating** and the **Letterboxd community average**, as a number and as stars.
@@ -17,7 +17,7 @@ A single-page, searchable list of documentaries: the ones I've watched, with my 
 
 - An asterisk after a service, such as `Prime*`, means it is **not free to watch** there.
 - `AfAm` is short for African-American.
-- Films marked "Not yet watched" show only the Letterboxd average, since I haven't rated them.
+- Films marked "Not watched" show only the Letterboxd average, since I haven't rated them.
 - A film that isn't on Letterboxd shows "Not on Letterboxd" instead of a link.
 - If a watched film has no review link yet, the detail view offers a Letterboxd search instead.
 
